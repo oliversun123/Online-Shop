@@ -1,0 +1,42 @@
+const { json } = require('body-parser');
+const fs = require('fs');
+const path = require('path');
+const rootDir = require('../util/path');
+
+const p = path.join(
+    rootDir,
+    'data',
+    'products.json'
+);
+
+const getProductsFromFile = (cb) => {
+    fs.readFile(p, (err, fileContent)=> {
+        if(err) {
+            cb([]);
+        }
+        cb(JSON.parse(fileContent));
+    })
+}
+
+module.exports = class Product {
+    constructor(name, imageURL, description, price) {
+        this.name = name;
+        this.imageURL = imageURL;
+        this.description = description;
+        this.price = price;
+    }
+
+
+    save() {
+        getProductsFromFile((products)=> {
+            products.push(this);
+            fs.writeFile(p, JSON.stringify(products), (err) => {
+                console.log(err);
+            })
+        });
+    }
+
+    static fecthAll(cb) {
+        getProductsFromFile(cb);
+    }
+}
